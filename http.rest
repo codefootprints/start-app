@@ -1,0 +1,7 @@
+POST http://localhost:3000/api/resources
+Content-Type: application/json
+
+{
+	"name": "Macbook Air M4",
+	"category": "Hardware"
+}
