@@ -50,7 +50,7 @@ Content-Type: application/json
   "description": "Melakukan migrasi schema dari v1 ke v2 menggunakan MacBook Air",
   "status": "todo",
   "user_id": 1,
-  "resource_id": 1
+  "resource_id": 2
 }
 
 ###

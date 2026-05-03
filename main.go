@@ -8,6 +8,7 @@ import (
 	"start-app/models"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"gorm.io/gorm"
 )
 
@@ -27,6 +28,11 @@ func main() {
 
 	// Inisialisasi Fiber
 	app := fiber.New()
+
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "http://localhost:5173", // URL Vite
+		AllowHeaders: "Origin, Content-Type, Accept",
+	}))
 
 	api := app.Group("/api")
 
