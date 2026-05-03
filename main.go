@@ -28,16 +28,22 @@ func main() {
 	// Inisialisasi Fiber
 	app := fiber.New()
 
+	api := app.Group("/api")
+
 	// Inisialisasi Handler
 	resourceHandler := &handlers.ResourceHandler{DB: db}
-
-	api := app.Group("/api")
+	userHandler := &handlers.UserHandler{DB: db}
 
 	// Resource Routes
 	api.Get("/resources", resourceHandler.GetAllResources)
 	api.Post("/resources", resourceHandler.CreateResource)
 	api.Get("/resources/:id", resourceHandler.GetResourceByID)
 	api.Delete("/resources/:id", resourceHandler.DeleteResource)
+
+	// User Routes
+	api.Get("/users", userHandler.GetAllUsers)
+	api.Post("/users", userHandler.CreateUser)
+	api.Get("/users/:id", userHandler.GetUserByID)
 
 	// Jalankan Server
 	app.Listen(":3000")
