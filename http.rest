@@ -34,10 +34,35 @@ GET http://localhost:3000/api/users
 
 ###
 
-GET   http://localhost:3000/api/users/2
+GET   http://localhost:3000/api/users/1
 
 ###
 
 DELETE  http://localhost:3000/api/users/1
+
+###
+
+POST http://localhost:3000/api/tasks
+Content-Type: application/json
+
+{
+  "title": "Migrasi Database Production",
+  "description": "Melakukan migrasi schema dari v1 ke v2 menggunakan MacBook Air",
+  "status": "todo",
+  "user_id": 1,
+  "resource_id": 1
+}
+
+###
+
+GET http://localhost:3000/api/tasks
+
+###
+
+GET   http://localhost:3000/api/tasks/1
+
+###
+
+DELETE  http://localhost:3000/api/tasks/1
 
 ###

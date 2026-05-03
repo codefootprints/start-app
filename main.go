@@ -33,6 +33,7 @@ func main() {
 	// Inisialisasi Handler
 	resourceHandler := &handlers.ResourceHandler{DB: db}
 	userHandler := &handlers.UserHandler{DB: db}
+	taskHandler := &handlers.TaskHandler{DB: db}
 
 	// Resource Routes
 	api.Get("/resources", resourceHandler.GetAllResources)
@@ -44,6 +45,10 @@ func main() {
 	api.Get("/users", userHandler.GetAllUsers)
 	api.Post("/users", userHandler.CreateUser)
 	api.Get("/users/:id", userHandler.GetUserByID)
+
+	// Handler Routes
+	api.Get("/tasks", taskHandler.GetAllTasks)
+	api.Post("/tasks", taskHandler.CreateTask)
 
 	// Jalankan Server
 	app.Listen(":3000")
