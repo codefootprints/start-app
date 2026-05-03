@@ -5,3 +5,17 @@ Content-Type: application/json
 	"name": "Macbook Air M4",
 	"category": "Hardware"
 }
+
+###
+
+GET http://localhost:3000/api/resources
+
+###
+
+GET   http://localhost:3000/api/resources/2
+
+###
+
+DELETE  http://localhost:3000/api/resources/1
+
+###
