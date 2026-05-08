@@ -3,11 +3,18 @@ import "./App.css"
 
 function App() {
   const [resources, setResources] = useState([])
-  console.log(resources)
+
   // State untuk form
   const [formData, setFormData] = useState({
     name: '',
     category: '',
+  })
+
+  const [users, setUsers] = useState([])
+  const [assignment, setAssignment] = useState({
+    user_id: '',
+    resource_id: '',
+    title: '',
   })
 
   // Mengambil data dari backend Golang
@@ -18,8 +25,15 @@ function App() {
     .catch(err => console.error("Gagal mengambil data", err))
   }
 
+  const fetchUsers = () => {
+    fetch("http://localhost:3000/api/users")
+    .then(res => res.json())
+    .then(data => setUsers(data))
+  }
+
   useEffect(() => {
     fetchResources()
+    fetchUsers()
   }, [])
 
   const handleSubmit = (e) => {
@@ -44,6 +58,35 @@ function App() {
     .catch(err => console.error("Gagal menambah aset:", err))
   }
 
+  const handleAssign = (e) => {
+    e.preventDefault()
+    fetch("http://localhost:3000/api/tasks", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        user_id: parseInt(assignment.user_id),
+        resource_id: parseInt(assignment.resource_id),
+        title: assignment.title,
+        description: "Penugasan otomatis dari dashboard",
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.error) {
+        alert(data.error)
+      } else {
+        fetchResources()
+        setAssignment({
+          user_id: '',
+          resource_id: '',
+          title: '',
+        })
+      }
+    })
+  }
+
   return (
     <div className="min-h-screen bg-stone-50 p-8">
       <div className="max-w-4xl mx-auto">
@@ -56,20 +99,74 @@ function App() {
           </div>
         </header>
 
+        {/* Form Assignment */}
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-stone-200 mb-8">
+          <h2 className="text-lg font-semibold text-stone-700 mb-4">
+            Assign Resource
+          </h2>
+          <form onSubmit={handleAssign} className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <input
+              type="text"
+              placeholder="Judul Tugas"
+              className="p-2 border border-stone-300 rounded"
+              value={assignment.title}
+              onChange={e => setAssignment({
+                ...assignment,
+                title: e.target.value
+              })}
+              required
+            />
+            <select
+              className="p-2 border border-stone-300 rounded"
+              value={assignment.user_id}
+              onChange={e => setAssignment({
+                ...assignment,
+                user_id: e.target.value
+              })}
+              required
+            >
+              <option value="">Pilih User</option>
+              {users.map(u => (
+                <option key={u.id} value={u.id}>{u.username}</option>
+              ))}
+            </select>
+            <select
+              className="p-2 border border-stone-300 rounded"
+              value={assignment.resource_id}
+              onChange={e => setAssignment({
+                ...assignment,
+                resource_id: e.target.value
+              })}
+              required
+            >
+              <option value="">Pilih Aset</option>
+              {resources.filter(r => r.status === "available")
+              .map(r => (
+                <option key={r.id} value={r.id}>{r.name}</option>
+              ))}
+            </select>
+            <button type="submit" className="px-6 py-2 bg-olive-800 text-white rounded hover:bg-olive-500 font-medium">
+              Assign
+            </button>
+          </form>
+        </div>
+
         {/* Form Tambah Aset */}
         <div className="bg-white p-6 rounded-xl shadow-sm border border-stone-200 mb-8">
           <h2 className="text-lg font-semibold text-stone-700 mb-4">
             Tambah Aset Baru
           </h2>
           <form onSubmit={handleSubmit} className="flex gap-4">
-            <input type="text"
+            <input 
+              type="text"
               placeholder="Nama Aset (Contoh: Macbook Air)"
               className="flex-1 p-2 border border-stone-300 rounded focus:outline-none focus:ring-2 focus:ring-olive-500"
               value={formData.name}
               onChange={(e) => setFormData({...formData, name: e.target.value})}
               required
             />
-            <input type="text"
+            <input 
+              type="text"
               placeholder="Kategori"
               className="flex-1 p-2 border border-stone-300 rounded focus:outline-none focus:ring-2 focus:ring-olive-500"
               value={formData.category}
