@@ -80,6 +80,19 @@ function App() {
     .catch(err => console.error("Gagal menambah aset:", err))
   }
 
+  const handleResourceDelete = (id) => {
+    if (window.confirm("Apakah Anda yakin ingin menghapus aset ini?")) {
+      fetch(`http://localhost:3000/api/resources/${id}`, {
+        method: "DELETE"
+      })
+      .then(res => res.json())
+      .then(() => {
+        fetchResources()
+      })
+      .catch(err => console.error("Gagal menghapus aset:", err))
+    }
+  }
+
   const handleAssign = (e) => {
     e.preventDefault()
     fetch("http://localhost:3000/api/tasks", {
@@ -246,6 +259,7 @@ function App() {
                 <th className="px-6 py-4 text-sm font-semibold text-stone-600">Nama Aset</th>
                 <th className="px-6 py-4 text-sm font-semibold text-stone-600">Kategori</th>
                 <th className="px-6 py-4 text-sm font-semibold text-stone-600">Status</th>
+                <th className="px-6 text-sm font-semibold text-stone-600 text-center">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100">
@@ -260,6 +274,14 @@ function App() {
                     }`}>
                       {item.status}
                     </span>
+                  </td>
+                  <td className="px-6 py-4 text-center">
+                    <button
+                      onClick={() => handleResourceDelete(item.id)}
+                      className="text-red-600 hover:text-white hover:bg-red-600 font-medium text-sm rounded px-2 py-1 hover:cursor-pointer"
+                    >
+                      Hapus
+                    </button>
                   </td>
                 </tr>
               ))}
