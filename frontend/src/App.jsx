@@ -2,15 +2,20 @@ import { useEffect, useState } from "react";
 import "./App.css"
 
 function App() {
+  // State untuk aset
   const [resources, setResources] = useState([])
-
-  // State untuk form
-  const [formData, setFormData] = useState({
+  const [resourceFormData, setResourceFormData] = useState({
     name: '',
     category: '',
   })
 
+  // State untuk user
   const [users, setUsers] = useState([])
+  const [userFormData, setUserFormData] = useState({
+    username: '',
+    email: '',
+  })
+
   const [assignment, setAssignment] = useState({
     user_id: '',
     resource_id: '',
@@ -18,6 +23,13 @@ function App() {
   })
 
   // Mengambil data dari backend Golang
+  const fetchUsers = () => {
+    fetch("http://localhost:3000/api/users")
+    .then(res => res.json())
+    .then(data => setUsers(data))
+    .catch(err => console.error("Gagal mengambil data", err))
+  }
+
   const fetchResources = () => {
     fetch("http://localhost:3000/api/resources")
     .then(res => res.json())
@@ -25,30 +37,40 @@ function App() {
     .catch(err => console.error("Gagal mengambil data", err))
   }
 
-  const fetchUsers = () => {
-    fetch("http://localhost:3000/api/users")
+  const handleUserSubmit = (e) => {
+    e.preventDefault()
+    fetch("http://localhost:3000/api/users", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(userFormData)
+    })
     .then(res => res.json())
-    .then(data => setUsers(data))
+    .then(() => {
+      // Reset form
+      setUserFormData({
+        username: '',
+        email: '',
+      })
+      fetchUsers()
+    })
+    .catch(err => console.error("Gagal menambah user:", err))
   }
 
-  useEffect(() => {
-    fetchResources()
-    fetchUsers()
-  }, [])
-
-  const handleSubmit = (e) => {
+  const handleResourceSubmit = (e) => {
     e.preventDefault()
     fetch("http://localhost:3000/api/resources", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify(formData),
+      body: JSON.stringify(resourceFormData),
     })
     .then(res => res.json())
     .then(() => {
       // Reset form
-      setFormData({
+      setResourceFormData({
         name: '',
         category: '',
       })
@@ -87,6 +109,11 @@ function App() {
     })
   }
 
+  useEffect(() => {
+    fetchResources()
+    fetchUsers()
+  }, [])
+
   return (
     <div className="min-h-screen bg-stone-50 p-8">
       <div className="max-w-4xl mx-auto">
@@ -98,6 +125,66 @@ function App() {
             {resources.length} Resource Terdata
           </div>
         </header>
+
+        {/* Form Tambah User */}
+        <div className="bg-white p-6 rounded-xl shadow-sm border-stone-200 mb-8">
+          <h2 className="text-lg font-semibold text-stone-700 mb-4">Registrasi Anggota Tim</h2>
+          <form onSubmit={handleUserSubmit} className="flex gap-4">
+            <input
+              type="text"
+              placeholder="Username"
+              className="flex-1 p-2 border border-stone-300 rounded focus:outline-none focus:ring-2 focus:ring-olive-500"
+              value={userFormData.username}
+              onChange={(e) => setUserFormData({
+                ...userFormData,
+                username: e.target.value
+              })}
+              required
+              />
+            <input
+              type="email"
+              placeholder="Email"
+              className="flex-1 p-2 border border-stone-300 rounded focus:outline-none focus:ring-2 focus:ring-olive-500"
+              value={userFormData.email}
+              onChange={(e) => setUserFormData({
+                ...userFormData,
+                email: e.target.value
+              })}
+              required
+            />
+            <button type="submit" className="px-6 py-2 bg-olive-800 text-white rounded hover:bg-olive-500 font-medium">
+              Tambah User
+            </button>
+          </form>
+        </div>
+
+        {/* Form Tambah Aset */}
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-stone-200 mb-8">
+          <h2 className="text-lg font-semibold text-stone-700 mb-4">
+            Tambah Aset Baru
+          </h2>
+          <form onSubmit={handleResourceSubmit} className="flex gap-4">
+            <input 
+              type="text"
+              placeholder="Nama Aset (Contoh: Macbook Air)"
+              className="flex-1 p-2 border border-stone-300 rounded focus:outline-none focus:ring-2 focus:ring-olive-500"
+              value={resourceFormData.name}
+              onChange={(e) => setResourceFormData({...resourceFormData, name: e.target.value})}
+              required
+            />
+            <input 
+              type="text"
+              placeholder="Kategori"
+              className="flex-1 p-2 border border-stone-300 rounded focus:outline-none focus:ring-2 focus:ring-olive-500"
+              value={resourceFormData.category}
+              onChange={(e) => setResourceFormData({...resourceFormData, category: e.target.value})}
+              required
+            />
+            <button type="submit" className="px-6 py-2 bg-olive-800 text-white rounded hover:bg-olive-500 font-medium">
+              Tambah Aset
+            </button>
+          </form>
+        </div>
 
         {/* Form Assignment */}
         <div className="bg-white p-6 rounded-xl shadow-sm border border-stone-200 mb-8">
@@ -147,34 +234,6 @@ function App() {
             </select>
             <button type="submit" className="px-6 py-2 bg-olive-800 text-white rounded hover:bg-olive-500 font-medium">
               Assign
-            </button>
-          </form>
-        </div>
-
-        {/* Form Tambah Aset */}
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-stone-200 mb-8">
-          <h2 className="text-lg font-semibold text-stone-700 mb-4">
-            Tambah Aset Baru
-          </h2>
-          <form onSubmit={handleSubmit} className="flex gap-4">
-            <input 
-              type="text"
-              placeholder="Nama Aset (Contoh: Macbook Air)"
-              className="flex-1 p-2 border border-stone-300 rounded focus:outline-none focus:ring-2 focus:ring-olive-500"
-              value={formData.name}
-              onChange={(e) => setFormData({...formData, name: e.target.value})}
-              required
-            />
-            <input 
-              type="text"
-              placeholder="Kategori"
-              className="flex-1 p-2 border border-stone-300 rounded focus:outline-none focus:ring-2 focus:ring-olive-500"
-              value={formData.category}
-              onChange={(e) => setFormData({...formData, category: e.target.value})}
-              required
-            />
-            <button type="submit" className="px-6 py-2 bg-olive-800 text-white rounded hover:bg-olive-500 font-medium">
-              Simpan
             </button>
           </form>
         </div>
