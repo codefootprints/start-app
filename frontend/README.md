@@ -1,16 +1,28 @@
-# React + Vite
+# START (Simple Task & Resource Tracker) 🚀
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**START** adalah aplikasi Fullstack yang dirancang untuk membantu tim kecil mendigitalisasi operasional mereka. Aplikasi ini memungkinkan pengguna untuk mendata aset (resource), mengelola pengguna, dan menugaskan aset tersebut ke dalam tugas (task) tertentu dengan pelacakan status secara real-time.
 
-Currently, two official plugins are available:
+Aplikasi ini dibangun dengan fokus pada performa tinggi menggunakan **Golang** di backend dan antarmuka yang modern menggunakan **React + Tailwind CSS v4**.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🛠️ Tech Stack
 
-## React Compiler
+- **Backend:** Golang 1.21, Fiber Framework, GORM (ORM).
+- **Database:** PostgreSQL 15.
+- **Frontend:** React (Vite), Tailwind CSS v4.
+- **Infrastructure:** Docker & Docker Compose.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## ✨ Fitur Utama
 
-## Expanding the ESLint configuration
+- **Resource Management:** CRUD data aset perusahaan (hardware, software, akun).
+- **Automated Status Logic:** Status aset otomatis berubah menjadi `in_use` saat ditugaskan ke sebuah task, dan divalidasi agar tidak terjadi duplikasi peminjaman.
+- **Database Transactions:** Menjamin integritas data antara pembuatan task dan pembaruan status aset.
+- **Responsive Dashboard:** Tampilan bersih dengan tema warna bumi (Earth Tones) yang nyaman digunakan untuk waktu lama.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🚀 Cara Menjalankan Aplikasi
+
+Pastikan Anda sudah menginstal [Docker](https://www.docker.com/) di mesin Anda.
+
+1. Clone repositori ini:
+   ```bash
+   git clone [https://github.com/codefootprints/start-app.git](https://github.com/codefootprints/start-app.git)
+   cd start-app

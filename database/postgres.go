@@ -1,7 +1,6 @@
 package database
 
 import (
-	"fmt"
 	"log"
 
 	"gorm.io/driver/postgres"
@@ -16,8 +15,6 @@ func InitDB() *gorm.DB {
 	if err != nil {
 		log.Fatal("Gagal koneksi ke database:", err)
 	}
-
-	fmt.Println("Koneksi ke database berhasil dikonfigurasi")
 
 	return db
 }

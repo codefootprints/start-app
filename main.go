@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"start-app/database"
 	"start-app/handlers"
@@ -23,8 +22,6 @@ func main() {
 	if err != nil {
 		log.Fatal("Gagal melakukan migrasi database:", err)
 	}
-
-	fmt.Println("Migrasi tabel selesai!")
 
 	// Inisialisasi Fiber
 	app := fiber.New()
