@@ -11,6 +11,34 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user_admin -d start_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: .
+    container_name: start_backend
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+
+  frontend:
+    build: ./frontend
+    container_name: start_frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    deploy:
+      resources:
+        limits:
+          memory: 4G
 
 volumes:
   postgres_data:
