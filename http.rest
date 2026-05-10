@@ -66,3 +66,7 @@ GET   http://localhost:3000/api/tasks/1
 DELETE  http://localhost:3000/api/tasks/1
 
 ###
+
+PATCH   http://localhost:3000/api/tasks/1/complete
+
+###

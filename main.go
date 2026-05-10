@@ -52,6 +52,7 @@ func main() {
 	// Handler Routes
 	api.Get("/tasks", taskHandler.GetAllTasks)
 	api.Post("/tasks", taskHandler.CreateTask)
+	api.Patch("tasks/:id/complete", taskHandler.CompleteTask)
 
 	// Jalankan Server
 	app.Listen(":3000")

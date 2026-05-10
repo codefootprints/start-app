@@ -65,3 +65,39 @@ func (h *TaskHandler) GetAllTasks(c *fiber.Ctx) error {
 	h.DB.Preload("User").Preload("Resource").Find(&tasks)
 	return c.Status(http.StatusOK).JSON(&tasks)
 }
+
+func (h *TaskHandler) CompleteTask(c *fiber.Ctx) error {
+	id := c.Params("id")
+	var task models.Task
+
+	// Cari Task yang dimaksud
+	if err := h.DB.First(&task, id).Error; err != nil {
+		return c.Status(http.StatusNotFound).JSON(fiber.Map{
+			"error": "Task tidak ditemukan",
+		})
+	}
+
+	// Gunakan Transaction untuk konsistensi data
+	err := h.DB.Transaction(func(tx *gorm.DB) error {
+		// Update status task
+		if err := tx.Delete(&task).Error; err != nil {
+			return err
+		}
+
+		// Update Resource kembali ke 'available'
+		if err := tx.Model(&models.Resource{}).Where("id = ?", task.ResourceID).Update("status", "available").Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Gagal menyelesaikan task",
+		})
+	}
+	return c.Status(http.StatusOK).JSON(fiber.Map{
+		"message": "Aset telah dikembalikan",
+	})
+}
