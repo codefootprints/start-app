@@ -62,6 +62,9 @@ function App() {
 		email: "",
 	});
 
+  // State untuk tasks
+  const [tasks, setTasks] = useState([])
+
 	// State untuk notifikasi
 	const [notification, setNotification] = useState({
 		message: "",
@@ -93,6 +96,13 @@ function App() {
 			.then((data) => setResources(data))
 			.catch((err) => console.error("Gagal mengambil data", err));
 	};
+
+  const fetchTasks = () => {
+    fetch("http://localhost:3000/api/tasks")
+      .then((res) => res.json())
+      .then((data) => setTasks(data))
+      .catch((err) => console.error("Gagal mengambil data task", err))
+  }
 
 	const handleUserSubmit = (e) => {
 		e.preventDefault();
@@ -183,14 +193,36 @@ function App() {
 						resource_id: "",
 						title: "",
 					});
-					showNotification("Gagal menambah task", "error");
+					showNotification("Penugasan berhasil dibuat!");
 				}
 			});
 	};
 
+  const handleTaskComplete = (id) => {
+    fetch(`http://localhost:3000/api/tasks/${id}/complete`, {
+      method: "PATCH",
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) {
+          showNotification(data.error, "error")
+        } else {
+          fetchResources()
+          fetchTasks()
+          showNotification("Aset berhasil dikembalikan!")
+        }
+      })
+      .catch(err => {
+        console.error("Gagal mengembalikan aset:", err)
+        showNotification("Gagal mengembalikan aset", "error")
+      })
+  }
+
 	useEffect(() => {
-		fetchResources();
-		fetchUsers();
+		fetchResources()
+    fetchTasks()
+		fetchUsers()
+    fetchTasks()
 	}, []);
 
 	return (
@@ -305,7 +337,6 @@ function App() {
 					</AccordionSection>
 
 					{/* Tabel Resource */}
-
 					<AccordionSection title="Daftar Resource" defaultOpen={true}>
 						<div className="overflow-x-auto">
 							<table className="w-full text-left">
@@ -336,6 +367,47 @@ function App() {
 							</table>
 						</div>
 					</AccordionSection>
+
+          {/* Tabel Task / Peminjaman Aktif */}
+          <AccordionSection title="Daftar Peminjaman Aktif" defaultOpen={true}>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead className="bg-stone-100 border-b border-stone-200">
+                  <tr>
+                    <th className="px-6 py-4 text-sm font-semibold text-stone-600">User</th>
+                    <th className="px-6 py-4 text-sm font-semibold text-stone-600">Aset</th>
+                    <th className="px-6 py-4 text-sm font-semibold text-stone-600">Judul Tugas</th>
+                    <th className="px-6 py-4 text-sm font-semibold text-stone-600">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-stone-100">
+                  {tasks.length > 0 ? (
+                    tasks.map(task => (
+                      <tr className="hover:bg-stone-50 transition-colors" key={task.id}>
+                        <td className="px-6 py-4 text-stone-800">{task.user?.username || "N/A"}</td>
+                        <td className="px-6 py-4 text-stone-800 font-medium">{task.resource?.name || "N/A"}</td>
+                        <td className="px-6 py-4 text-stone-800 italic">{task.title}</td>
+                        <td className="px-6 py-4 text-center">
+                          <button
+                            onClick={() => handleTaskComplete(task.id)}
+                            className="border border-olive-500 text-olive-800 hover:bg-olive-500 hover:text-white font-medium text-sm rounded px-3 py-1 transition-all hover:cursor-pointer focus:outline-none focus:ring-2 focus:ring-olive-500"
+                          >
+                            Kembalikan
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="4" className="px-4 py-8 text-center text-stone-400">
+                        Tidak ada peminjaman aktif
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </AccordionSection>
 				</div>
 			</div>
 		</>
