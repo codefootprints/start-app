@@ -65,6 +65,8 @@ function App() {
   // State untuk tasks
   const [tasks, setTasks] = useState([])
 
+  const [taskHistory, setTaskHistory] = useState([])
+
 	// State untuk notifikasi
 	const [notification, setNotification] = useState({
 		message: "",
@@ -102,6 +104,13 @@ function App() {
       .then((res) => res.json())
       .then((data) => setTasks(data))
       .catch((err) => console.error("Gagal mengambil data task", err))
+  }
+
+  const fetchTaskHistory = () => {
+    fetch("http://localhost:3000/api/tasks/history")
+      .then(res => res.json())
+      .then(data => setTaskHistory(data))
+      .catch(err => console.error("Gagal mengambil riwayat", err))
   }
 
 	const handleUserSubmit = (e) => {
@@ -209,6 +218,7 @@ function App() {
         } else {
           fetchResources()
           fetchTasks()
+          fetchTaskHistory()
           showNotification("Aset berhasil dikembalikan!")
         }
       })
@@ -222,7 +232,7 @@ function App() {
 		fetchResources()
     fetchTasks()
 		fetchUsers()
-    fetchTasks()
+    fetchTaskHistory()
 	}, []);
 
 	return (
@@ -406,6 +416,39 @@ function App() {
                   )}
                 </tbody>
               </table>
+            </div>
+          </AccordionSection>
+
+          <AccordionSection title="Riwayat Pengembalian" defaultOpen={true}>
+            <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                    <thead className="bg-stone-100 border-b border-stone-200">
+                        <tr>
+                            <th className="px-6 py-4 text-sm font-semibold text-stone-600">User</th>
+                            <th className="px-6 py-4 text-sm font-semibold text-stone-600">Aset</th>
+                            <th className="px-6 py-4 text-sm font-semibold text-stone-600">Selesai Pada</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-stone-100">
+                        {taskHistory.length > 0 ? (
+                            taskHistory.map((history) => (
+                                <tr className="bg-stone-50/30" key={history.id}>
+                                    <td className="px-6 py-4 text-stone-600">{history.user?.username || "N/A"}</td>
+                                    <td className="px-6 py-4 text-stone-600 font-medium">{history.resource?.name || "N/A"}</td>
+                                    <td className="px-6 py-4 text-stone-400 text-xs italic">
+                                        {new Date(history.updated_at).toLocaleString("id-ID")}
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="3" className="px-6 py-8 text-center text-stone-400">
+                                    Belum ada riwayat pengembalian
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
             </div>
           </AccordionSection>
 				</div>

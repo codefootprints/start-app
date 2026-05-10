@@ -51,6 +51,7 @@ func main() {
 
 	// Handler Routes
 	api.Get("/tasks", taskHandler.GetAllTasks)
+	api.Get("/tasks/history", taskHandler.GetTaskHistory)
 	api.Post("/tasks", taskHandler.CreateTask)
 	api.Patch("tasks/:id/complete", taskHandler.CompleteTask)
 

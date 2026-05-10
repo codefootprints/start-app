@@ -101,3 +101,22 @@ func (h *TaskHandler) CompleteTask(c *fiber.Ctx) error {
 		"message": "Aset telah dikembalikan",
 	})
 }
+
+func (h *TaskHandler) GetTaskHistory(c *fiber.Ctx) error {
+	var tasks []models.Task
+
+	// deleted_at IS NOT NULL memastikan kita hanya mengambil riwayat yang sudah selesai
+	err := h.DB.Unscoped().
+		Preload("User").
+		Preload("Resource").
+		Where("deleted_at IS NOT NULL").
+		Find(&tasks).Error
+
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Gagal menarik riwayat pengambalian",
+		})
+	}
+
+	return c.Status(http.StatusOK).JSON(tasks)
+}
