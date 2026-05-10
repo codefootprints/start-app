@@ -10,15 +10,24 @@ import (
 )
 
 func InitDB() *gorm.DB {
-	// Koneksi database
+	// Mengambil nilai dari Environment Variables
 	dbHost := os.Getenv("DB_HOST")
 	if dbHost == "" {
 		dbHost = "localhost"
 	}
 
+	dbUser := os.Getenv("DB_USER")
+	dbPass := os.Getenv("DB_PASSWORD")
+	dbName := os.Getenv("DB_NAME")
+	dbPort := os.Getenv("DB_PORT")
+	if dbPort == "" {
+		dbPort = "5432"
+	}
+
+	// Format DSN menggunakan variabel
 	dsn := fmt.Sprintf(
-		"host=%s user=user_admin password=password_rahasia dbname=start_db port=5432 sslmode=disable",
-		dbHost,
+		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
+		dbHost, dbUser, dbPass, dbName, dbPort,
 	)
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})

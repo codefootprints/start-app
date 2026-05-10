@@ -197,6 +197,7 @@ function App() {
 					console.error("Gagal menambah task:", data.error);
 				} else {
 					fetchResources();
+          fetchTasks();
 					setAssignment({
 						user_id: "",
 						resource_id: "",
