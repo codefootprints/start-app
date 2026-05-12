@@ -1,23 +1,18 @@
 # Stage 1: Build
 FROM node:25-alpine AS build
-
 WORKDIR /app
 COPY package*.json ./
-# Gunakan ci untuk instalasi yang lebih bersih dan hemat memori
 RUN npm ci 
-
 COPY . .
-# Tambahkan limit memori untuk Node agar tidak melebihi alokasi Docker
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 RUN npm run build
 
-# Stage 2: Production
-FROM node:25-alpine
+# Stage 2: Production (Ganti serve dengan Nginx)
+FROM nginx:alpine
+# Copy hasil build ke folder default Nginx
+COPY --from=build /app/dist /usr/share/nginx/html
+# Tambahkan konfigurasi agar client-side routing React (React Router) tidak 404
+RUN echo "server { listen 80; location / { root /usr/share/nginx/html; index index.html; try_files \$uri \$uri/ /index.html; } }" > /etc/nginx/conf.d/default.conf
 
-WORKDIR /app
-RUN npm install -g serve
-# Kita hanya ambil hasil build-nya saja (folder dist)
-COPY --from=build /app/dist ./dist
-
-EXPOSE 5173
-CMD ["serve", "-s", "dist", "-l", "5173"]
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
