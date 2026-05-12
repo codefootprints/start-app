@@ -1,67 +1,68 @@
-# START (Simple Task & Resource Tracker)
+# START - Simple Task & Asset Resource Tracker
 
-**START** adalah aplikasi Fullstack yang dirancang untuk membantu tim kecil dalam mengelola aset perusahaan (seperti laptop, akun server, atau lisensi software) dan melacak penugasan aset tersebut kepada anggota tim secara real-time.
+**START** adalah aplikasi *full-stack* modern yang dirancang untuk mengelola inventaris aset (resource) dan penugasan (task) kepada pengguna secara efisien. Proyek ini dibangun dengan fokus pada integritas data, keamanan, dan efisiensi *deployment* menggunakan Docker.
 
-Aplikasi ini dibangun dengan fokus pada performa tinggi, integritas data, dan kemudahan deployment menggunakan Docker.
+## 🚀 Fitur Utama
 
-## 🚀 Tech Stack
+* **Manajemen Aset & User**: CRUD lengkap untuk aset dan pengguna.
+* **Sistem Peminjaman Terintegrasi**: Alur penugasan aset ke user dengan validasi status otomatis (`available` / `in_use`).
+* **Integritas Data Tinggi**:
+* Pencegahan penghapusan aset yang sedang digunakan.
+* Validasi input API di sisi Backend.
+* Transaksi database untuk menjamin konsistensi data.
 
-* **Backend:** [Golang](https://go.dev/) dengan framework [Fiber](https://gofiber.io/)
-* **Database:** [PostgreSQL](https://www.postgresql.org/) dengan [GORM](https://gorm.io/) (ORM)
-* **Frontend:** [React.js](https://react.dev/) (Vite) dengan [Tailwind CSS v4](https://tailwindcss.com/)
-* **Infrastructure:** [Docker](https://www.docker.com/) & Docker Compose
 
-## ✨ Key Features
+* **Riwayat Pengembalian**: Pelacakan aset yang sudah dikembalikan menggunakan fitur *Soft Delete* GORM.
+* **UI Modern**: Antarmuka berbasis React dengan sistem *Accordion*, notifikasi *toast* kustom, dan skema warna *Olive-Stone*.
+* **Production Ready**: Konfigurasi Docker menggunakan *Multi-Stage Builds* untuk ukuran *image* yang minimalis.
 
-* **Resource Management:** Inventarisasi aset kantor dengan status ketersediaan otomatis.
-* **User Management:** Pendataan anggota tim yang bertanggung jawab.
-* **Smart Assignment:** Logika transaksi backend untuk menugaskan aset ke user (otomatis mengubah status aset menjadi `in_use`).
-* **Atomic Transactions:** Menjamin konsistensi data antara tabel Task dan Resource menggunakan database transaction.
-* **Modern UI:** Antarmuka responsif dengan skema warna *Earth Tone* yang bersih.
+## 🛠️ Stack Teknologi
 
-## 🛠️ Cara Menjalankan Project
+* **Backend**: [Go](https://go.dev/) (Fiber Framework, GORM)
+* **Frontend**: [React](https://react.dev/) (Vite, Tailwind CSS v4)
+* **Database**: [PostgreSQL](https://www.postgresql.org/)
+* **DevOps**: [Docker](https://www.docker.com/) & Docker Compose
 
-Pastikan Anda sudah menginstal **Docker** dan **Docker Compose** di mesin Anda.
+## 📦 Persiapan & Instalasi
 
-1. Clone repositori ini:
-```bash
-git clone https://github.com/codefootprints/start-app.git
-cd start-app
+### 1. Prasyarat
+
+* Docker & Docker Compose terinstal di mesin Anda.
+
+### 2. Konfigurasi Environment
+
+Buat file `.env` di folder root project dan sesuaikan kredensialnya:
+
+```env
+DB_HOST=db
+DB_USER=user_admin
+DB_PASSWORD=password_rahasia
+DB_NAME=start_db
+DB_PORT=5432
 ```
 
+### 3. Menjalankan Aplikasi
 
-2. Jalankan seluruh layanan (Backend, Frontend, & Database) dengan satu perintah:
+Gunakan Docker Compose untuk membangun dan menjalankan seluruh layanan (DB, Backend, Frontend):
+
 ```bash
 docker-compose up --build
 ```
 
+Aplikasi dapat diakses melalui:
 
-3. Akses aplikasi:
-* **Frontend:** [http://localhost:5173](https://www.google.com/search?q=http://localhost:5173)
-* **Backend API:** [http://localhost:3000](https://www.google.com/search?q=http://localhost:3000)
+* **Frontend**: `http://localhost:5173`
+* **Backend API**: `http://localhost:3000`
 
+## 🏗️ Arsitektur Docker (Multi-Stage Build)
 
+Proyek ini menggunakan optimasi *Multi-Stage Build* untuk memastikan efisiensi di lingkungan produksi:
 
-## 📡 API Endpoints
+* **Backend**: Menggunakan stage `builder` (Golang Alpine) dan stage `final` (Alpine minimalis) untuk menjaga ukuran *binary* tetap kecil.
+* **Frontend**: Menggunakan stage `build` (Node.js) dan stage `production` (Nginx) untuk performa penyajian file statis yang maksimal.
 
-### Resources
+## 📝 Catatan Pengembangan
 
-* `GET /api/resources` - Ambil semua daftar aset
-* `POST /api/resources` - Tambah aset baru
-* `DELETE /api/resources/:id` - Hapus aset (Soft delete)
-
-### Users
-
-* `GET /api/users` - Ambil daftar anggota tim
-* `POST /api/users` - Tambah user baru
-
-### Tasks
-
-* `GET /api/tasks` - Lihat semua riwayat penugasan (Preloaded with User & Resource)
-* `POST /api/tasks` - Buat penugasan baru (Logic: Mengubah status Resource menjadi `in_use`)
-
----
-
-Dibuat dengan ❤️ sebagai bagian dari portofolio Fullstack Developer.
-
----
+* **Validasi**: Backend secara ketat menolak input kosong dan memberikan pesan error yang deskriptif.
+* **Keamanan**: Kredensial database tidak lagi di-*hardcode* di dalam kode sumber melainkan ditarik dari variabel lingkungan.
+* **Audit**: Semua task yang "selesai" tetap tersimpan di database dengan flag `deleted_at`, memungkinkan fitur riwayat untuk tetap dapat melihat data historis.
