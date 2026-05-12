@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"net/http"
 	"start-app/models"
 
 	"github.com/gofiber/fiber/v2"
@@ -14,7 +15,7 @@ type ResourceHandler struct {
 func (h *ResourceHandler) GetAllResources(c *fiber.Ctx) error {
 	var resources []models.Resource
 	h.DB.Find(&resources)
-	return c.Status(200).JSON(resources)
+	return c.Status(http.StatusOK).JSON(resources)
 }
 
 func (h *ResourceHandler) CreateResource(c *fiber.Ctx) error {
@@ -25,28 +26,44 @@ func (h *ResourceHandler) CreateResource(c *fiber.Ctx) error {
 		})
 	}
 	h.DB.Create(&resource)
-	return c.Status(200).JSON(resource)
+	return c.Status(http.StatusOK).JSON(resource)
 }
 
 func (h *ResourceHandler) GetResourceByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	var resource models.Resource
 	if err := h.DB.First(&resource, id).Error; err != nil {
-		return c.Status(404).JSON(fiber.Map{
+		return c.Status(http.StatusNotFound).JSON(fiber.Map{
 			"error": "Resource tidak ditemukan",
 		})
 	}
-	return c.Status(200).JSON(resource)
+	return c.Status(http.StatusOK).JSON(resource)
 }
 
 func (h *ResourceHandler) DeleteResource(c *fiber.Ctx) error {
 	id := c.Params("id")
+	var resource models.Resource
+
+	// Cari resource-nya dulu
+	if err := h.DB.First(&resource, id).Error; err != nil {
+		return c.Status(http.StatusNotFound).JSON(fiber.Map{
+			"error": "Resource tidak ditemukan",
+		})
+	}
+
+	// Cek jika status 'in_use', dilarang hapus
+	if resource.Status == "in_use" {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"error": "Tidak dapat menghapus aset yang sedang dipinjam. Selesaikan peminjaman terlebih dahulu.",
+		})
+	}
+
 	if err := h.DB.Delete(&models.Resource{}, id).Error; err != nil {
-		return c.Status(404).JSON(fiber.Map{
+		return c.Status(http.StatusNotFound).JSON(fiber.Map{
 			"error": "Gagal menghapus resource",
 		})
 	}
-	return c.Status(200).JSON(fiber.Map{
+	return c.Status(http.StatusOK).JSON(fiber.Map{
 		"message": "Resource berhasil dihapus",
 	})
 }
