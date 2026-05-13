@@ -147,7 +147,13 @@ function App() {
 			},
 			body: JSON.stringify(resourceFormData),
 		})
-			.then((res) => res.json())
+			.then(async (res) => {
+				const data = await res.json()
+				if (!res.ok) {
+					throw new Error(data.error || "Gagal menambah aset")
+				}
+				return data
+			})
 			.then(() => {
 				// Reset form
 				setResourceFormData({
@@ -159,7 +165,6 @@ function App() {
 				showNotification("Aset berhasil ditambahkan!");
 			})
 			.catch((err) => {
-				console.error("Gagal menambah aset:", err);
 				showNotification("Gagal menambah aset", "error");
 			});
 	};
