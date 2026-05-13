@@ -25,7 +25,19 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 			"error": "Format data salah",
 		})
 	}
-	h.DB.Create(&user)
+
+	// Validasi: Username dan Email tidak boleh kosong
+	if user.Username == "" || user.Email == "" {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"error": "Username dan email wajib diisi",
+		})
+	}
+
+	if err := h.DB.Create(&user).Error; err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Gagal menyimpan user ke database",
+		})
+	}
 	return c.Status(http.StatusCreated).JSON(user)
 }
 
