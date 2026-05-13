@@ -20,12 +20,27 @@ func (h *ResourceHandler) GetAllResources(c *fiber.Ctx) error {
 
 func (h *ResourceHandler) CreateResource(c *fiber.Ctx) error {
 	resource := new(models.Resource)
+
 	if err := c.BodyParser(resource); err != nil {
-		return c.Status(400).JSON(fiber.Map{
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
 			"error": "Format data salah",
 		})
 	}
-	h.DB.Create(&resource)
+	// Validasi: Nama dan Kategori tidak boleh kosong
+	if resource.Name == "" || resource.Category == "" {
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"error": "Nama aset dan kategori wajib diisi",
+		})
+	}
+
+	// Set default status
+	resource.Status = "available"
+
+	if err := h.DB.Create(&resource).Error; err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Gagal menyimpan aset ke database",
+		})
+	}
 	return c.Status(http.StatusOK).JSON(resource)
 }
 
