@@ -4,6 +4,7 @@ import (
 	"log"
 	"start-app/database"
 	"start-app/handlers"
+	"start-app/middleware"
 	"start-app/models"
 
 	"github.com/gofiber/fiber/v2"
@@ -28,7 +29,7 @@ func main() {
 
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: "http://localhost:5173", // URL Vite
-		AllowHeaders: "Origin, Content-Type, Accept",
+		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
 	}))
 
 	api := app.Group("/api")
@@ -38,22 +39,27 @@ func main() {
 	userHandler := &handlers.UserHandler{DB: db}
 	taskHandler := &handlers.TaskHandler{DB: db}
 
-	// Resource Routes
-	api.Get("/resources", resourceHandler.GetAllResources)
-	api.Post("/resources", resourceHandler.CreateResource)
-	api.Get("/resources/:id", resourceHandler.GetResourceByID)
-	api.Delete("/resources/:id", resourceHandler.DeleteResource)
-
-	// User Routes
-	api.Get("/users", userHandler.GetAllUsers)
+	// Rute publik
 	api.Post("/users", userHandler.CreateUser)
-	api.Get("/users/:id", userHandler.GetUserByID)
+	api.Post("/users/login", userHandler.Login)
 
-	// Handler Routes
-	api.Get("/tasks", taskHandler.GetAllTasks)
-	api.Get("/tasks/history", taskHandler.GetTaskHistory)
-	api.Post("/tasks", taskHandler.CreateTask)
-	api.Patch("tasks/:id/complete", taskHandler.CompleteTask)
+	// Rute terproteksi
+	resourceRoutes := api.Group("/resources", middleware.Protected())
+	resourceRoutes.Get("/", resourceHandler.GetAllResources)
+	resourceRoutes.Post("/", resourceHandler.CreateResource)
+	resourceRoutes.Get("/:id", resourceHandler.GetResourceByID)
+	resourceRoutes.Delete("/:id", resourceHandler.DeleteResource)
+
+	userRoutes := api.Group("/users", middleware.Protected())
+	userRoutes.Get("/", userHandler.GetAllUsers)
+	userRoutes.Get("/:id", userHandler.GetUserByID)
+
+	// Task Routes
+	taskRoutes := api.Group("/tasks", middleware.Protected())
+	taskRoutes.Get("/", taskHandler.GetAllTasks)
+	taskRoutes.Get("/history", taskHandler.GetTaskHistory)
+	taskRoutes.Post("/", taskHandler.CreateTask)
+	taskRoutes.Patch("/:id/complete", taskHandler.CompleteTask)
 
 	// Jalankan Server
 	app.Listen(":3000")

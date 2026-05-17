@@ -24,8 +24,19 @@ POST http://localhost:3000/api/users
 Content-Type: application/json
 
 {
-	"username": "andi",
-	"email": "andi@kantor.com"
+	"username": "gina",
+	"email": "gina@kantor.com",
+	"password": "P@$$w0rd123"
+}
+
+###
+
+POST http://localhost:3000/api/users/login
+Content-Type: application/json
+
+{
+	"username": "gina",
+	"password": "P@$$w0rd123"
 }
 
 ###
