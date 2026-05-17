@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
 import "./App.css";
 
@@ -52,6 +53,9 @@ function App() {
 	const [token, setToken] = useState(localStorage.getItem("token") || "");
 	const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
 	const [loginData, setLoginData] = useState({ username: "", password: "" });
+
+	// State untuk fitur pencarian aset (Task 10.1)
+	const [searchQuery, setSearchQuery] = useState("");
 
 	// State untuk aset
 	const [resources, setResources] = useState([]);
@@ -353,6 +357,12 @@ function App() {
 		}
 	}, [isLoggedIn, token]);
 
+	// Filter daftar aset berdasarkan nama atau kategori secara real-time
+	const filteredResources = resources.filter((item) => {
+		const query = searchQuery.toLowerCase();
+		return item.name.toLowerCase().includes(query) || item.category.toLowerCase().includes(query);
+	});
+
 	return (
 		<>
 			{notification.message && (
@@ -493,6 +503,16 @@ function App() {
 
 						{/* Tabel Resource */}
 						<AccordionSection title="Daftar Resource" defaultOpen={true}>
+							<div className="mb-4 relative">
+								<input type="text" placeholder="Cari aset berdasarkan nama atau kategori... (Misal: Macbook)" className="w-full p-2 pl-9 border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-olive-500 text-sm text-stone-700 bg-stone-50/50" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+								{/* Ikon Kaca Pembesar Magnifier */}
+								<div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-stone-400">
+									<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+									</svg>
+								</div>
+							</div>
+
 							<div className="overflow-x-auto">
 								<table className="w-full text-left">
 									<thead className="bg-stone-100 border-b border-stone-200">
@@ -504,20 +524,28 @@ function App() {
 										</tr>
 									</thead>
 									<tbody className="divide-y divide-stone-100">
-										{resources.map((item) => (
-											<tr className="hover:bg-stone-50 transition-colors" key={item.id}>
-												<td className="px-6 py-4 text-stone-800 font-medium">{item.name}</td>
-												<td className="px-6 py-4 text-stone-500">{item.category}</td>
-												<td className="px-6 py-4">
-													<span className={`px-3 py-1 rounded-full text-xs font-medium ${item.status === "available" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}>{item.status}</span>
-												</td>
-												<td className="px-6 py-4 text-center">
-													<button onClick={() => handleResourceDelete(item.id, item.name)} className="text-red-600 hover:text-white hover:bg-red-600 font-medium text-sm rounded px-2 py-1 hover:cursor-pointer transition-colors">
-														Hapus
-													</button>
+										{filteredResources.length > 0 ? (
+											filteredResources.map((item) => (
+												<tr className="hover:bg-stone-50 transition-colors" key={item.id}>
+													<td className="px-6 py-4 text-stone-800 font-medium">{item.name}</td>
+													<td className="px-6 py-4 text-stone-500">{item.category}</td>
+													<td className="px-6 py-4">
+														<span className={`px-3 py-1 rounded-full text-xs font-medium ${item.status === "available" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}>{item.status}</span>
+													</td>
+													<td className="px-6 py-4 text-center">
+														<button onClick={() => handleResourceDelete(item.id, item.name)} className="text-red-600 hover:text-white hover:bg-red-600 font-medium text-sm rounded px-2 py-1 hover:cursor-pointer">
+															Hapus
+														</button>
+													</td>
+												</tr>
+											))
+										) : (
+											<tr>
+												<td colSpan="4" className="px-6 py-8 text-center text-stone-400 text-sm italic">
+													Aset yang Anda cari tidak ditemukan
 												</td>
 											</tr>
-										))}
+										)}
 									</tbody>
 								</table>
 							</div>
